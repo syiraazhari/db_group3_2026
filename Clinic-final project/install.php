@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS receptionist (
     receptionist_password VARCHAR(255) NOT NULL,
     receptionist_phoneNo VARCHAR(255) NOT NULL,
     receptionist_email VARCHAR(255) NOT NULL,
-    PRIMARY KEY (receptionist_id),
+    PRIMARY KEY (receptionist_id)
 );
 ";
 

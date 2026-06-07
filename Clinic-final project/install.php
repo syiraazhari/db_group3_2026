@@ -3,7 +3,6 @@ require_once 'database.php';
 
 $sql = "
 
-$sql = "
 CREATE TABLE IF NOT EXISTS users (
     user_id INT NOT NULL AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL,
@@ -131,6 +130,15 @@ CREATE TABLE IF NOT EXISTS treatments (
     FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id)
 );
 
+
+CREATE TABLE IF NOT EXISTS receptionist (
+    receptionist_id INT NOT NULL AUTO_INCREMENT,
+    receptionist_username VARCHAR(255) NOT NULL,
+    receptionist_password VARCHAR(255) NOT NULL,
+    receptionist_phoneNo VARCHAR(255) NOT NULL,
+    receptionist_email VARCHAR(255) NOT NULL,
+    PRIMARY KEY (receptionist_id)
+);
 ";
 
 // Execute SQL

@@ -49,7 +49,7 @@ if ($_POST) {
 <head>
     <title>Patient Registration</title>
     <style>
-        body { font-family: Arial; background: #f0f0f0; margin: 0; padding: 20px; }
+        body { font-family: Arial; background: #CCFFFF; margin: 0; padding: 20px; }
         .register-box { max-width: 500px; margin: 50px auto; background: white; padding: 30px; border-radius: 10px; }
         h2 { text-align: center; color: #2c3e50; }
         label { display: block; margin-top: 15px; font-weight: bold; }

@@ -63,7 +63,7 @@ if ($_POST) {
     <style>
         body {
             font-family: Arial;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color:aquamarine;
             margin: 0;
             padding: 20px;
             min-height: 100vh;
@@ -173,7 +173,7 @@ if ($_POST) {
     </form>
     
     <div class="register-link">
-        New patient? <a href="register.php">Register here</a>
+        New patient? <a href="pRegister.php">Register here</a>
     </div>
 </div>
 

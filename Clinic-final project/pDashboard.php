@@ -2,5 +2,7 @@
 <header>
 <title>DASHBOARD</title>
 </header>
-<body></body>
+<body>
+<h1 style="text-align:center">WELCOME!</h1>
+</body>
 <html>

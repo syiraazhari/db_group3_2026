@@ -63,7 +63,7 @@ if ($_POST) {
     <style>
         body {
             font-family: Arial;
-            background-color:aquamarine;
+            background-color:#CCCCFF;
             margin: 0;
             padding: 20px;
             min-height: 100vh;

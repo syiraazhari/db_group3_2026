@@ -1,18 +1,12 @@
 <?php
-$host = 'localhost';
-$dbname = 'hospital_db';
-$username = 'root';
-$password = '';
+$host = "localhost";
+$user = "root";
+$pass = "";
+$dbname = "hospital_db";
 
-try {
-    $pdo = new PDO("mysql:host=$host", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
-    // Create database if not exists
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS $dbname");
-    $pdo->exec("USE $dbname");
-    
-} catch(PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+$conn = mysqli_connect($host, $user, $pass, $dbname);  // ← $conn is CREATED HERE
+
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
 }
 ?>

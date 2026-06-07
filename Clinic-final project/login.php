@@ -45,7 +45,7 @@ if ($_POST) {
         if(mysqli_num_rows($result) == 1) {
             $row = mysqli_fetch_assoc($result);
             $_SESSION['user_id'] = $row['receptionist_id'];
-            $_SESSION['user_name'] = $row['receptionist_name'];
+            $_SESSION['user_name'] = $row['receptionist_username'];
             $_SESSION['user_role'] = "staff";
             header("Location: staffDashboard.php");
             exit();

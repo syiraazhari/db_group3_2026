@@ -51,13 +51,22 @@ CREATE TABLE IF NOT EXISTS treatments (
     PRIMARY KEY (treatment_id),
     FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id)
 );
+
+CREATE TABLE IF NOT EXISTS receptionist (
+    receptionist_id INT NOT NULL AUTO_INCREMENT,
+    receptionist_username VARCHAR(255) NOT NULL,
+    receptionist_password VARCHAR(255) NOT NULL,
+    receptionist_phoneNo VARCHAR(255) NOT NULL,
+    receptionist_email VARCHAR(255) NOT NULL,
+    PRIMARY KEY (receptionist_id),
+);
 ";
 
 try {
     $pdo->exec($sql);
     echo "<h2 style='color:green'>All tables created successfully!</h2>";
     echo "<p>Database: hospital_db</p>";
-    echo "<p>Tables created: users, patients, doctors, appointments, treatments</p>";
+    echo "<p>Tables created: users, patients, doctors, appointments, treatments, receptionist</p>";
 } catch(PDOException $e) {
     echo "<h2 style='color:red'>Error creating tables: </h2>" . $e->getMessage();
 }

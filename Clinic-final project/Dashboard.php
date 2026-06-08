@@ -17,23 +17,20 @@ $user_name = $_SESSION['user_name'];
 // =============================================
 if($user_role == 'patient') {
     
-    // Get patient's appointments
+    // Get patient's appointments - NO QUEUE JOIN (queue table has no link to appointments)
     $appointments_query = "SELECT a.apptId, a.apptDate, a.apptTime, a.status, 
-                                  d.doctorName, d.specialisation,
-                                  q.queueId
+                                  d.doctorName, d.specialisation
                            FROM appointment a
                            JOIN doctor d ON a.doctorId = d.doctorId
-                           LEFT JOIN queue q ON a.apptId = q.apptId
                            WHERE a.patientId = '$user_id'
                            ORDER BY a.apptDate DESC";
     $appointments_result = mysqli_query($conn, $appointments_query);
     
-    // Get today's queue number
+    // Get today's queue number - SEPARATE QUERY (queue table has patientId)
     $today = date('Y-m-d');
-    $queue_query = "SELECT q.queueId, q.queueNumber, q.queueStatus
-                    FROM queue q
-                    JOIN appointment a ON q.apptId = a.apptId
-                    WHERE a.patientId = '$user_id' AND DATE(a.apptDate) = '$today'
+    $queue_query = "SELECT queueId, availability as queueStatus
+                    FROM queue 
+                    WHERE patientId = '$user_id'
                     LIMIT 1";
     $queue_result = mysqli_query($conn, $queue_query);
     $queue = mysqli_fetch_assoc($queue_result);
@@ -77,14 +74,14 @@ if($user_role == 'patient') {
     
     <!-- QUEUE NUMBER RECTANGLE -->
     <div class="rectangle">
-        <h3>🚶 Today's Queue Number</h3>
-        <?php if($queue && $queue['queueNumber']): ?>
+        <h3>🚶 Queue Number</h3>
+        <?php if($queue && $queue['queueId']): ?>
         <div class="queue-box">
-            <div class="queue-number"><?php echo $queue['queueNumber']; ?></div>
+            <div class="queue-number"><?php echo $queue['queueId']; ?></div>
             <div>Status: <?php echo $queue['queueStatus']; ?></div>
         </div>
         <?php else: ?>
-        <p style="text-align:center; padding:20px;">No queue number assigned for today.</p>
+        <p style="text-align:center; padding:20px;">No queue number assigned.</p>
         <?php endif; ?>
     </div>
     
@@ -94,7 +91,7 @@ if($user_role == 'patient') {
         <?php if(mysqli_num_rows($appointments_result) > 0): ?>
         <table>
             <thead>
-                <tr><th>Date</th><th>Time</th><th>Doctor</th><th>Specialization</th><th>Status</th><th>Queue</th></tr>
+                <tr><th>Date</th><th>Time</th><th>Doctor</th><th>Specialization</th><th>Status</th></tr>
             </thead>
             <tbody>
                 <?php while($row = mysqli_fetch_assoc($appointments_result)): ?>
@@ -110,7 +107,6 @@ if($user_role == 'patient') {
                             <span class="status-completed"><?php echo $row['status']; ?></span>
                         <?php endif; ?>
                     </td>
-                    <td><?php echo $row['queueId'] ? 'Assigned' : '-'; ?></td>
                 </tr>
                 <?php endwhile; ?>
             </tbody>
@@ -131,13 +127,11 @@ if($user_role == 'patient') {
 // =============================================
 elseif($user_role == 'doctor') {
     
-    // Get doctor's appointments with patient and queue info
+    // Get doctor's appointments with patient info (no queue join)
     $appointments_query = "SELECT a.apptId, a.apptDate, a.apptTime, a.status,
-                                  p.patientId, p.patientName, p.gender, p.patientPhoneNo,
-                                  q.queueNumber, q.queueStatus
+                                  p.patientId, p.patientName, p.gender, p.patientPhoneNo
                            FROM appointment a
                            JOIN patient p ON a.patientId = p.patientId
-                           LEFT JOIN queue q ON a.apptId = q.apptId
                            WHERE a.doctorId = '$user_id'
                            ORDER BY a.apptDate DESC";
     $appointments_result = mysqli_query($conn, $appointments_query);
@@ -244,7 +238,6 @@ elseif($user_role == 'receptionist') {
     </div>
     
     <div class="squares">
-        <!-- SQUARE 1: USERS LIST (All roles) -->
         <div class="square">
             <div class="icon">👥</div>
             <h3>Users List</h3>
@@ -252,7 +245,6 @@ elseif($user_role == 'receptionist') {
             <a href="users_list.php" class="square-btn">View Users →</a>
         </div>
         
-        <!-- SQUARE 2: QUEUE MANAGEMENT -->
         <div class="square">
             <div class="icon">🚶</div>
             <h3>Queue Management</h3>
@@ -260,7 +252,6 @@ elseif($user_role == 'receptionist') {
             <a href="queue_list.php" class="square-btn">Manage Queue →</a>
         </div>
         
-        <!-- SQUARE 3: APPOINTMENT LIST -->
         <div class="square">
             <div class="icon">📅</div>
             <h3>Appointments</h3>

@@ -240,23 +240,30 @@ elseif($user_role == 'receptionist') {
     <div class="squares">
         <div class="square">
             <div class="icon">👥</div>
-            <h3>Users List</h3>
-            <p>View all patients, doctors, and staff</p>
-            <a href="users_list.php" class="square-btn">View Users →</a>
+            <h3>Patients' Lists</h3>
+            <p>View and manage patients</p>
+            <a href="editPatient(RECEPTIONIST).php" class="square-btn">View Patients →</a>
         </div>
         
+		<div class="square">
+            <div class="icon">👥</div>
+            <h3>Doctors' Lists</h3>
+            <p>View and manage patients</p>
+            <a href="editDoctor(RECEPTIONIST).php" class="square-btn">View Patients →</a>
+        </div>
+		
         <div class="square">
             <div class="icon">🚶</div>
             <h3>Queue Management</h3>
             <p>Manage queue numbers and status</p>
-            <a href="queue_list.php" class="square-btn">Manage Queue →</a>
+            <a href="editQueue(RECEPTIONIST).php" class="square-btn">Manage Queue →</a>
         </div>
         
         <div class="square">
             <div class="icon">📅</div>
             <h3>Appointments</h3>
             <p>View and manage all appointments</p>
-            <a href="appointments_list.php" class="square-btn">View Appointments →</a>
+            <a href="editAppointments(RECEPTIONIST).php" class="square-btn">View Appointments →</a>
         </div>
     </div>
 </div>

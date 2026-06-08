@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'config/database.php';
+include 'database.php';
 
 // Check if user is logged in
 if(!isset($_SESSION['user_id']) || !isset($_SESSION['user_role'])) {

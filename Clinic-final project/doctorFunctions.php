@@ -1,5 +1,5 @@
 <?php
-// Function to sanitize input data
+// Function to sanitize input
 function sanitizeInput($data) {
     $data = trim($data);
     $data = stripslashes($data);
@@ -9,10 +9,10 @@ function sanitizeInput($data) {
 
 // Function to check if doctor is logged in
 function isDoctorLoggedIn() {
-    return isset($_SESSION['doctor_id']) && isset($_SESSION['doctor_role']);
+    return isset($_SESSION['doctor_id']) && isset($_SESSION['doctor_role']) && $_SESSION['doctor_role'] == 'doctor';
 }
 
-// Function to redirect if not logged in
+// Function to require doctor login
 function requireDoctorLogin() {
     if (!isDoctorLoggedIn()) {
         header("Location: login.php");
@@ -20,7 +20,7 @@ function requireDoctorLogin() {
     }
 }
 
-// Function to get doctor appointments
+// Function to get doctor's appointments
 function getDoctorAppointments($conn, $doctorId, $status = null) {
     $sql = "SELECT a.*, p.patientName, p.patientIc, p.patientPhoneNo, p.patientEmail 
             FROM appointment a 
@@ -39,23 +39,11 @@ function getDoctorAppointments($conn, $doctorId, $status = null) {
 // Function to get today's appointments
 function getTodayAppointments($conn, $doctorId) {
     $today = date('Y-m-d');
-    $sql = "SELECT a.*, p.patientName, p.patientIc, p.patientPhoneNo, p.patientEmail 
+    $sql = "SELECT a.*, p.patientName, p.patientIc, p.patientPhoneNo 
             FROM appointment a 
             JOIN patient p ON a.patientId = p.patientId 
             WHERE a.doctorId = $doctorId AND a.apptDate = '$today'
             ORDER BY a.apptTime ASC";
-    
-    return mysqli_query($conn, $sql);
-}
-
-// Function to get queue for doctor
-function getDoctorQueue($conn, $doctorId) {
-    $sql = "SELECT q.*, p.patientName, p.patientIc, a.apptTime 
-            FROM queue q 
-            JOIN patient p ON q.patientId = p.patientId 
-            JOIN appointment a ON q.patientId = a.patientId AND a.doctorId = q.doctorId
-            WHERE q.doctorId = $doctorId 
-            ORDER BY q.queueId ASC";
     
     return mysqli_query($conn, $sql);
 }

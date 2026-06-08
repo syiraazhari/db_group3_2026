@@ -1,182 +1,66 @@
 <?php
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
+session_start();
+include 'database.php';
 
-// Require doctor login
-if (!isset($_SESSION['doctor_id'])) {
-    header("Location: login.php");
+if(!isset($_SESSION['doctor_id'])) {
+    header("Location: doctor_auth.php");
     exit();
 }
 
-$doctorId = $_SESSION['doctor_id'];
-$doctorName = $_SESSION['doctor_name'];
-
-// Get statistics
-$stats = [];
-
-// Total appointments
-$sql = "SELECT COUNT(*) as total FROM appointment WHERE doctorId = $doctorId";
-$result = mysqli_query($conn, $sql);
-$stats['total'] = mysqli_fetch_assoc($result)['total'];
-
-// Pending appointments
-$sql = "SELECT COUNT(*) as pending FROM appointment WHERE doctorId = $doctorId AND status = 'Pending'";
-$result = mysqli_query($conn, $sql);
-$stats['pending'] = mysqli_fetch_assoc($result)['pending'];
-
-// Completed appointments
-$sql = "SELECT COUNT(*) as completed FROM appointment WHERE doctorId = $doctorId AND status = 'Completed'";
-$result = mysqli_query($conn, $sql);
-$stats['completed'] = mysqli_fetch_assoc($result)['completed'];
-
-// Today's appointments
-$today = date('Y-m-d');
-$sql = "SELECT COUNT(*) as today FROM appointment WHERE doctorId = $doctorId AND apptDate = '$today'";
-$result = mysqli_query($conn, $sql);
-$stats['today'] = mysqli_fetch_assoc($result)['today'];
-
-// Get today's appointments
-$todayAppointments = getTodayAppointments($conn, $doctorId);
+$doctor_id = $_SESSION['doctor_id'];
+$doctor_name = $_SESSION['doctor_name'];
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Dashboard</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .header {
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        .stat-number {
-            font-size: 32px;
-            font-weight: bold;
-            color: #3498db;
-        }
-        .appointments {
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        .logout-btn {
-            background: #e74c3c;
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .nav {
-            margin-bottom: 20px;
-        }
-        .nav a {
-            background: #34495e;
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
-            margin-right: 10px;
-            border-radius: 5px;
-        }
+        body { font-family: Arial; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 0; padding: 20px; }
+        .dashboard { max-width: 800px; margin: 50px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        h2 { color: #667eea; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .logout { background: #e74c3c; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; }
+        .logout:hover { background: #c0392b; }
+        .welcome { margin: 20px 0; padding: 15px; background: #f0f4ff; border-radius: 5px; }
+        .menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 30px; }
+        .menu-card { background: #f9f9f9; padding: 20px; text-align: center; border-radius: 8px; text-decoration: none; color: #333; transition: transform 0.3s; }
+        .menu-card:hover { transform: translateY(-5px); background: #f0f4ff; }
+        .menu-card h3 { margin: 0; color: #667eea; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Doctor Dashboard</h1>
-            <p>Welcome, Dr. <?php echo $doctorName; ?> | <a href="logout.php" class="logout-btn">Logout</a></p>
-        </div>
-        
-        <div class="nav">
-            <a href="dashboard.php">Dashboard</a>
-            <a href="view_appointments.php">My Appointments</a>
-            <a href="view_queue.php">Patient Queue</a>
-        </div>
-        
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number"><?php echo $stats['total']; ?></div>
-                <div>Total Appointments</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number"><?php echo $stats['pending']; ?></div>
-                <div>Pending Appointments</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number"><?php echo $stats['completed']; ?></div>
-                <div>Completed Appointments</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number"><?php echo $stats['today']; ?></div>
-                <div>Today's Appointments</div>
-            </div>
-        </div>
-        
-        <div class="appointments">
-            <h2>Today's Appointments (<?php echo date('F j, Y'); ?>)</h2>
-            <?php if (mysqli_num_rows($todayAppointments) > 0): ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Patient Name</th>
-                            <th>IC Number</th>
-                            <th>Phone</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while($appointment = mysqli_fetch_assoc($todayAppointments)): ?>
-                        <tr>
-                            <td><?php echo date('h:i A', strtotime($appointment['apptTime'])); ?></td>
-                            <td><?php echo $appointment['patientName']; ?></td>
-                            <td><?php echo $appointment['patientIc']; ?></td>
-                            <td><?php echo $appointment['patientPhoneNo']; ?></td>
-                            <td><?php echo $appointment['status']; ?></td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <p>No appointments scheduled for today.</p>
-            <?php endif; ?>
-        </div>
+
+<div class="dashboard">
+    <div class="header">
+        <h2>👨‍⚕️ Doctor Dashboard</h2>
+        <a href="doctor_auth.php?action=logout" class="logout">Logout</a>
     </div>
+    
+    <div class="welcome">
+        <strong>Welcome, Dr. <?php echo $doctor_name; ?>!</strong><br>
+        You are logged in as a doctor.
+    </div>
+    
+    <div class="menu">
+        <a href="view_appointments.php" class="menu-card">
+            <h3>📅 Appointments</h3>
+            <p>View today's appointments</p>
+        </a>
+        <a href="view_patients.php" class="menu-card">
+            <h3>👥 My Patients</h3>
+            <p>View assigned patients</p>
+        </a>
+        <a href="patient_records.php" class="menu-card">
+            <h3>📋 Medical Records</h3>
+            <p>Update patient records</p>
+        </a>
+        <a href="prescriptions.php" class="menu-card">
+            <h3>💊 Prescriptions</h3>
+            <p>Manage prescriptions</p>
+        </a>
+    </div>
+</div>
+
 </body>
 </html>

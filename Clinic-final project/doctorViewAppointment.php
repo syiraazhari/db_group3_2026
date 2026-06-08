@@ -1,17 +1,39 @@
 <?php
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
+session_start();
+include 'database.php';
 
-requireDoctorLogin();
+// Check if doctor is logged in
+if(!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 'doctor') {
+    header("Location: login.php");
+    exit();
+}
 
-$doctorId = $_SESSION['doctor_id'];
+$doctorId = $_SESSION['user_id'];
+$message = "";
+$error = "";
 
-// Get filter parameter - GET method
-$status = isset($_GET['status']) ? $_GET['status'] : 'all';
+// Get filter
+$status_filter = isset($_GET['status']) ? $_GET['status'] : 'all';
+$date_filter = isset($_GET['date']) ? $_GET['date'] : '';
 
-// Loop through different status options
-$statusOptions = ['all', 'Pending', 'Completed', 'Cancelled'];
-$appointments = getDoctorAppointments($conn, $doctorId, $status);
+// Build query
+$query = "SELECT a.*, p.patientName, p.patientIc, p.patientPhoneNo, p.patientEmail, 
+          q.queueNumber, q.queueStatus
+          FROM appointment a 
+          JOIN patient p ON a.patientId = p.patientId 
+          LEFT JOIN queue q ON a.apptId = q.appointmentId
+          WHERE a.doctorId = '$doctorId'";
+
+if($status_filter != 'all') {
+    $query .= " AND a.status = '$status_filter'";
+}
+
+if($date_filter != '') {
+    $query .= " AND a.apptDate = '$date_filter'";
+}
+
+$query .= " ORDER BY a.apptDate DESC, a.apptTime ASC";
+$appointments = mysqli_query($conn, $query);
 ?>
 
 <!DOCTYPE html>
@@ -29,62 +51,71 @@ $appointments = getDoctorAppointments($conn, $doctorId, $status);
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f4f4;
+            background: #f0f2f5;
         }
         
         .header {
-            background: #2c3e50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
+            padding: 20px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
         .nav {
-            background: #34495e;
-            padding: 10px 20px;
+            background: white;
+            padding: 12px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .nav a {
-            color: white;
+            color: #667eea;
             text-decoration: none;
             padding: 10px 20px;
             margin: 0 5px;
             display: inline-block;
+            font-weight: 500;
+            border-radius: 5px;
         }
         
         .nav a:hover, .nav a.active {
-            background: #2c3e50;
-            border-radius: 5px;
+            background: #667eea;
+            color: white;
         }
         
         .container {
             padding: 30px;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
-        .filter-bar {
+        .filter-section {
             background: white;
             padding: 20px;
             border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
-        .filter-bar a {
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .filter-btn {
             padding: 8px 15px;
-            margin: 0 5px;
-            text-decoration: none;
             background: #ecf0f1;
-            color: #2c3e50;
+            color: #333;
+            text-decoration: none;
             border-radius: 5px;
-            display: inline-block;
+            font-size: 14px;
         }
         
-        .filter-bar a.active {
-            background: #3498db;
+        .filter-btn.active {
+            background: #667eea;
             color: white;
         }
         
@@ -92,7 +123,8 @@ $appointments = getDoctorAppointments($conn, $doctorId, $status);
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
         }
         
         table {
@@ -103,12 +135,13 @@ $appointments = getDoctorAppointments($conn, $doctorId, $status);
         th, td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #e0e0e0;
         }
         
         th {
             background: #f8f9fa;
-            color: #2c3e50;
+            color: #555;
+            font-weight: 600;
         }
         
         .status {
@@ -116,6 +149,7 @@ $appointments = getDoctorAppointments($conn, $doctorId, $status);
             border-radius: 5px;
             font-size: 12px;
             font-weight: bold;
+            display: inline-block;
         }
         
         .status-pending {
@@ -133,60 +167,87 @@ $appointments = getDoctorAppointments($conn, $doctorId, $status);
             color: #721c24;
         }
         
-        .btn {
+        .status-scheduled {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .queue-status {
+            background: #e8f4f8;
             padding: 5px 10px;
-            background: #3498db;
+            border-radius: 5px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        
+        .btn {
+            padding: 6px 12px;
+            background: #667eea;
             color: white;
             text-decoration: none;
             border-radius: 5px;
             font-size: 12px;
-            border: none;
-            cursor: pointer;
+            display: inline-block;
         }
         
         .btn:hover {
-            background: #2980b9;
+            background: #5a67d8;
         }
         
         .logout-btn {
-            background: #e74c3c;
+            background: rgba(255,255,255,0.2);
             padding: 8px 15px;
             border-radius: 5px;
             text-decoration: none;
             color: white;
         }
+        
+        .date-input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Clinic Management System</h1>
+        <h1>🏥 Clinic Management System</h1>
         <div>
-            Welcome, Dr. <?php echo $_SESSION['doctor_name']; ?> | 
-            <a href="logout.php" class="logout-btn">Logout</a>
+            <span>Welcome, Dr. <?php echo $_SESSION['user_name']; ?></span>
+            <a href="login.php?action=logout" class="logout-btn">🚪 Logout</a>
         </div>
     </div>
     
     <div class="nav">
-        <a href="dashboard.php">Dashboard</a>
-        <a href="view_appointments.php" class="active">My Appointments</a>
-        <a href="view_queue.php">Patient Queue</a>
-        <a href="profile.php">My Profile</a>
+        <a href="doctor_dashboard.php">📊 Dashboard</a>
+        <a href="doctor_appointments.php" class="active">📅 My Appointments</a>
+        <a href="doctor_queue.php">👥 Patient Queue</a>
+        <a href="doctor_profile.php">👤 My Profile</a>
     </div>
     
     <div class="container">
-        <div class="filter-bar">
-            <strong>Filter by Status:</strong>
-            <?php foreach($statusOptions as $option): ?>
-                <a href="?status=<?php echo $option; ?>" class="<?php echo ($status == $option) ? 'active' : ''; ?>">
-                    <?php echo ucfirst($option); ?>
-                </a>
-            <?php endforeach; ?>
+        <div class="filter-section">
+            <h3>Filter Appointments</h3>
+            <div class="filter-buttons">
+                <a href="?status=all" class="filter-btn <?php echo ($status_filter == 'all') ? 'active' : ''; ?>">All</a>
+                <a href="?status=Scheduled" class="filter-btn <?php echo ($status_filter == 'Scheduled') ? 'active' : ''; ?>">Scheduled</a>
+                <a href="?status=Pending" class="filter-btn <?php echo ($status_filter == 'Pending') ? 'active' : ''; ?>">Pending</a>
+                <a href="?status=Completed" class="filter-btn <?php echo ($status_filter == 'Completed') ? 'active' : ''; ?>">Completed</a>
+                <a href="?status=Cancelled" class="filter-btn <?php echo ($status_filter == 'Cancelled') ? 'active' : ''; ?>">Cancelled</a>
+            </div>
+            <div style="margin-top: 15px;">
+                <form method="GET" style="display: inline;">
+                    <input type="date" name="date" class="date-input" value="<?php echo $date_filter; ?>">
+                    <button type="submit" class="btn">Filter by Date</button>
+                    <a href="doctor_appointments.php" class="btn">Reset</a>
+                </form>
+            </div>
         </div>
         
         <div class="appointments-table">
-            <h3>My Appointments</h3>
-            
-            <?php if (mysqli_num_rows($appointments) > 0): ?>
+            <h3>📋 Appointment List</h3>
+            <?php if(mysqli_num_rows($appointments) > 0): ?>
                 <table>
                     <thead>
                         <tr>
@@ -197,6 +258,7 @@ $appointments = getDoctorAppointments($conn, $doctorId, $status);
                             <th>Phone</th>
                             <th>Email</th>
                             <th>Status</th>
+                            <th>Queue #</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -215,16 +277,21 @@ $appointments = getDoctorAppointments($conn, $doctorId, $status);
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="update_appointment.php?id=<?php echo $appointment['apptId']; ?>" class="btn">
-                                        Update Status
-                                    </a>
+                                    <?php if($appointment['queueNumber']): ?>
+                                        <span class="queue-status">Queue: <?php echo $appointment['queueNumber']; ?></span>
+                                    <?php else: ?>
+                                        -
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <a href="doctor_update_appointment.php?id=<?php echo $appointment['apptId']; ?>" class="btn">Update</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
                     </tbody>
                 </table>
             <?php else: ?>
-                <p>No appointments found.</p>
+                <p style="text-align: center; color: #999;">No appointments found.</p>
             <?php endif; ?>
         </div>
     </div>

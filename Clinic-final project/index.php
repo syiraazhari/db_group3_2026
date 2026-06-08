@@ -64,7 +64,7 @@ include 'database.php';
     <div class="nav-buttons">
         <?php if(isset($_SESSION['user_id']) && isset($_SESSION['user_role'])): ?>
             <a href="dashboard.php" class="nav-btn btn-dashboard">📊 Go to Dashboard</a>
-            <a href="?action=logout" class="nav-btn btn-login">🚪 Logout</a>
+            <a href="logout.php" class="nav-btn btn-login">🚪 Logout</a>
         <?php else: ?>
             <a href="login.php" class="nav-btn btn-login">🔐 Login</a>
             <a href="register.php" class="nav-btn btn-register">📝 Register as Patient</a>
@@ -112,18 +112,13 @@ include 'database.php';
     
     <!-- Demo Info -->
     <div class="demo-info">
-        THANK YOU FOR TRUSTING US!
+        <p>THANK YOU FOR TRUSTING US!</p>
     </div>
 
 </div>
 
 <?php
-// Logout logic
-if(isset($_GET['action']) && $_GET['action'] == 'logout') {
-    session_destroy();
-    header("Location: index.php");
-    exit();
-}
+// Logout logic removed - now handled by logout.php
 ?>
 
 </body>

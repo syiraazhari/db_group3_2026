@@ -135,7 +135,7 @@ if(isset($_POST['login'])) {
         </form>
         
         <div class="demo-info">
-            <p>🔗 <a href="register.php">Register as New Patient</a></p>
+            <p>🔗 <a href="pRegister.php">Register as New Patient</a></p>
         </div>
     </div>
 </div>

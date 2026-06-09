@@ -28,8 +28,8 @@ $qry = mysqli_query($con, "
 </form>
 <br>
 <table>
-<?php while ($row = mysqli_fetch_assoc($qry)) {
 <tr><th>ID</th><th>Patient</th><th>Doctor</th><th>Receptionist</th><th>Availability</th><th colspan="2">Action</th></tr>
+<?php while ($row = mysqli_fetch_assoc($qry)) {
     echo "<tr>
             <td>{$row['queueId']}</td>
             <td>{$row['patientName']}</td>

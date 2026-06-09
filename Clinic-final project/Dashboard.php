@@ -248,8 +248,8 @@ elseif($user_role == 'receptionist') {
 		<div class="square">
             <div class="icon">👥</div>
             <h3>Doctors' Lists</h3>
-            <p>View and manage patients      </p>
-            <a href="editDoctor(RECEPTIONIST).php" class="square-btn">View Patients →</a>
+            <p>View and manage doctors      </p>
+            <a href="editDoctor(RECEPTIONIST).php" class="square-btn">View Doctors →</a>
         </div>
 		
         <div class="square">

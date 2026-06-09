@@ -42,9 +42,17 @@ $qry = mysqli_query($con, "
 				<input type='submit' value='Edit'>
 				</form>
 			</td>
+			<td>
+				<form action='deleteQueue.php' method='POST'>
+				<input type='hidden' name='id' value='{$row['queueId']}'>
+				<input type='submit' value='Delete'>
+				</form>
+			</td>
           </tr>";
 } ?>
 </table>
 </body>
 </html>
 <?php mysqli_close($con); ?>
+
+

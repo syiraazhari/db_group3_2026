@@ -133,7 +133,7 @@ elseif($user_role == 'doctor') {
                            FROM appointment a
                            JOIN patient p ON a.patientId = p.patientId
                            WHERE a.doctorId = '$user_id'
-                           ORDER BY a.apptDate DESC";
+                           ORDER BY a.apptDate DESC LIMIT 5";
     $appointments_result = mysqli_query($conn, $appointments_query);
 ?>
 
@@ -155,11 +155,13 @@ elseif($user_role == 'doctor') {
         .profile-label { font-size: 12px; color: #7f8c8d; }
         .profile-value { font-size: 16px; font-weight: bold; }
         .btn { background: #27ae60; color: white; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 15px; }
+        .btn-appointments { background: #667eea; color: white; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 15px; margin-left: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #27ae60; color: white; }
         tr:hover { background: #f5f5f5; }
         .status-pending { background: #ffeaa7; color: #d35400; padding: 3px 8px; border-radius: 5px; }
+        .status-completed { background: #d4edda; color: #155724; padding: 3px 8px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -189,7 +191,40 @@ elseif($user_role == 'doctor') {
             <div class="profile-item"><div class="profile-label">Phone</div><div class="profile-value"><?php echo $doctor['doctorPhoneNo']; ?></div></div>
             <div class="profile-item"><div class="profile-label">Email</div><div class="profile-value"><?php echo $doctor['doctorEmail']; ?></div></div>
         </div>
+        
+        <!-- BUTTON LINK TO doctor_appointments.php -->
         <a href="doctor_appointments.php" class="btn">📋 View My Appointments</a>
+        <a href="doctor_queue.php" class="btn-appointments">👥 View Patient Queue</a>
+    </div>
+    
+    <!-- Recent Appointments Summary -->
+    <div class="profile-box">
+        <h3>📅 Recent Appointments</h3>
+        <?php if(mysqli_num_rows($appointments_result) > 0): ?>
+        <table>
+            <thead>
+                <tr><th>Date</th><th>Time</th><th>Patient Name</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                <?php while($row = mysqli_fetch_assoc($appointments_result)): ?>
+                <tr>
+                    <td><?php echo date('d/m/Y', strtotime($row['apptDate'])); ?></td>
+                    <td><?php echo date('h:i A', strtotime($row['apptTime'])); ?></td>
+                    <td><?php echo $row['patientName']; ?></td>
+                    <td>
+                        <?php if($row['status'] == 'Pending'): ?>
+                            <span class="status-pending">Pending</span>
+                        <?php else: ?>
+                            <span class="status-completed"><?php echo $row['status']; ?></span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <?php else: ?>
+        <p style="text-align:center; padding:20px;">No appointments found.</p>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -216,7 +251,7 @@ elseif($user_role == 'receptionist') {
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
         .welcome { background: linear-gradient(135deg, #e67e22, #2c3e50); color: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; }
         .squares { display: flex; gap: 20px; flex-wrap: wrap; }
-        .square { background: white; border-radius: 15px; padding: 30px; flex: 1; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .square { background: white; border-radius: 15px; padding: 30px; flex: 1; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.2s; min-width: 200px; }
         .square:hover { transform: translateY(-5px); }
         .square h3 { color: #2c3e50; margin-bottom: 15px; }
         .square p { color: #7f8c8d; margin-bottom: 20px; }
@@ -241,17 +276,17 @@ elseif($user_role == 'receptionist') {
         <div class="square">
             <div class="icon">👥</div>
             <h3>Patients' Lists</h3>
-            <p>View and manage patients      </p>
+            <p>View and manage patients</p>
             <a href="editPatient(RECEPTIONIST).php" class="square-btn">View Patients →</a>
         </div>
         
-		<div class="square">
+        <div class="square">
             <div class="icon">👥</div>
             <h3>Doctors' Lists</h3>
-            <p>View and manage doctors      </p>
+            <p>View and manage doctors</p>
             <a href="editDoctor(RECEPTIONIST).php" class="square-btn">View Doctors →</a>
         </div>
-		
+        
         <div class="square">
             <div class="icon">🚶</div>
             <h3>Queue Management</h3>

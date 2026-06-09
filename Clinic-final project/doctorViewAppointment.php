@@ -296,16 +296,6 @@ $stats['today'] = mysqli_fetch_assoc($result)['today'];
             color: #0c5460;
         }
         
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .btn-small {
-            padding: 5px 12px;
-            font-size: 12px;
-        }
-        
         .empty-state {
             text-align: center;
             padding: 40px;
@@ -406,7 +396,7 @@ $stats['today'] = mysqli_fetch_assoc($result)['today'];
             </div>
         </div>
         
-        <!-- Appointments List -->
+        <!-- Appointments List (VIEW ONLY - NO UPDATE BUTTON) -->
         <div class="appointments-table">
             <h3>📋 Appointment List</h3>
             
@@ -425,7 +415,6 @@ $stats['today'] = mysqli_fetch_assoc($result)['today'];
                             <th>Phone</th>
                             <th>Email</th>
                             <th>Status</th>
-                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -441,11 +430,6 @@ $stats['today'] = mysqli_fetch_assoc($result)['today'];
                                     <span class="status status-<?php echo strtolower($appointment['status']); ?>">
                                         <?php echo $appointment['status']; ?>
                                     </span>
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a href="doctor_update_appointment.php?id=<?php echo $appointment['apptId']; ?>" class="btn btn-small">Update Status</a>
-                                    </div>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

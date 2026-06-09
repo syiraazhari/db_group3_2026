@@ -12,7 +12,6 @@ $qry = mysqli_query($con, "SELECT * FROM doctor");
 </head>
 <body>
 <h1>Doctors List</h1>
-<form action="registerDoctor.php" method="POST"><input type="submit" value="Add New Doctor"></form><br>
 <table>
 <tr><th>ID</th><th>Name</th><th>Specialisation</th><th>Phone</th><th>Email</th><th>Username</th><th>Password</th><th colspan="2">Action</th></tr>
 <?php while ($row = mysqli_fetch_assoc($qry)) {

@@ -43,14 +43,23 @@ $qry = mysqli_query($con, "
 				</form>
 			</td>
 			<td>
-				<form action='deleteQueue.php' method='POST'>
-				<input type='hidden' name='id' value='{$row['queueId']}'>
-				<input type='submit' value='Delete'>
+				<form action='deleteQueue.php' method='POST'
+					  onsubmit='return confirmDelete({$row['queueId']});'>
+					<input type='hidden' name='id' value='{$row['queueId']}'>
+					<input type='submit' value='Delete'>
 				</form>
 			</td>
           </tr>";
 } ?>
 </table>
+
+<script>
+	function confirmDelete(id) {
+		return confirm("Are you sure you want to delete Queue ID " + id + "?");
+	}
+</script>
+
+
 </body>
 </html>
 <?php mysqli_close($con); ?>

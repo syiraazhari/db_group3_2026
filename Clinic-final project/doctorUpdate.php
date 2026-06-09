@@ -12,7 +12,7 @@ $doctorId = $_SESSION['user_id'];
 $message = "";
 $error = "";
 
-// Get appointment ID
+// Check if appointment ID is provided
 if(!isset($_GET['id'])) {
     header("Location: doctor_appointments.php");
     exit();
@@ -21,11 +21,9 @@ if(!isset($_GET['id'])) {
 $appointmentId = $_GET['id'];
 
 // Fetch appointment details
-$query = "SELECT a.*, p.patientName, p.patientIc, p.patientPhoneNo, p.patientEmail,
-          q.queueNumber, q.queueStatus
+$query = "SELECT a.*, p.patientName, p.patientIc, p.patientPhoneNo, p.patientEmail 
           FROM appointment a 
           JOIN patient p ON a.patientId = p.patientId 
-          LEFT JOIN queue q ON a.apptId = q.appointmentId
           WHERE a.apptId = '$appointmentId' AND a.doctorId = '$doctorId'";
 $result = mysqli_query($conn, $query);
 
@@ -38,21 +36,14 @@ $appointment = mysqli_fetch_assoc($result);
 
 // Update appointment status
 if(isset($_POST['update_status'])) {
-    $new_status = $_POST['status'];
+    $new_status = mysqli_real_escape_string($conn, $_POST['status']);
     $consultation_notes = mysqli_real_escape_string($conn, $_POST['consultation_notes']);
     
     $update_query = "UPDATE appointment SET status = '$new_status', consultationNotes = '$consultation_notes' WHERE apptId = '$appointmentId'";
     
     if(mysqli_query($conn, $update_query)) {
         $message = "Appointment status updated successfully!";
-        
-        // If completed, update queue status
-        if($new_status == 'Completed') {
-            $update_queue = "UPDATE queue SET queueStatus = 'Completed' WHERE appointmentId = '$appointmentId'";
-            mysqli_query($conn, $update_queue);
-        }
-        
-        // Refresh data
+        // Refresh the data
         $result = mysqli_query($conn, $query);
         $appointment = mysqli_fetch_assoc($result);
     } else {
@@ -68,16 +59,8 @@ if(isset($_POST['update_status'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Appointment - Doctor Panel</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
         
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -120,6 +103,13 @@ if(isset($_POST['update_status'])) {
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
         }
         
         .patient-info {
@@ -263,7 +253,7 @@ if(isset($_POST['update_status'])) {
     
     <div class="container">
         <div class="card">
-            <h2>Update Appointment</h2>
+            <h2>Update Appointment Status</h2>
             
             <?php if($message): ?>
                 <div class="message success"><?php echo $message; ?></div>
@@ -295,9 +285,6 @@ if(isset($_POST['update_status'])) {
                         <span class="info-label">Time:</span> <?php echo date('h:i A', strtotime($appointment['apptTime'])); ?>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Queue Number:</span> <?php echo $appointment['queueNumber'] ? $appointment['queueNumber'] : 'Not assigned'; ?>
-                    </div>
-                    <div class="info-item">
                         <span class="info-label">Current Status:</span>
                         <span class="status-badge status-<?php echo strtolower($appointment['status']); ?>">
                             <?php echo $appointment['status']; ?>
@@ -312,6 +299,7 @@ if(isset($_POST['update_status'])) {
                     <select name="status" required>
                         <option value="Scheduled" <?php echo ($appointment['status'] == 'Scheduled') ? 'selected' : ''; ?>>Scheduled</option>
                         <option value="Pending" <?php echo ($appointment['status'] == 'Pending') ? 'selected' : ''; ?>>Pending</option>
+                        <option value="Confirmed" <?php echo ($appointment['status'] == 'Confirmed') ? 'selected' : ''; ?>>Confirmed</option>
                         <option value="Completed" <?php echo ($appointment['status'] == 'Completed') ? 'selected' : ''; ?>>Completed</option>
                         <option value="Cancelled" <?php echo ($appointment['status'] == 'Cancelled') ? 'selected' : ''; ?>>Cancelled</option>
                     </select>
@@ -319,7 +307,7 @@ if(isset($_POST['update_status'])) {
                 
                 <div class="form-group">
                     <label>Consultation Notes</label>
-                    <textarea name="consultation_notes" placeholder="Enter diagnosis, prescription, follow-up instructions..."><?php echo isset($appointment['consultationNotes']) ? $appointment['consultationNotes'] : ''; ?></textarea>
+                    <textarea name="consultation_notes" placeholder="Enter diagnosis, prescription, follow-up instructions..."><?php echo isset($appointment['consultationNotes']) ? htmlspecialchars($appointment['consultationNotes']) : ''; ?></textarea>
                 </div>
                 
                 <button type="submit" name="update_status">Update Appointment</button>

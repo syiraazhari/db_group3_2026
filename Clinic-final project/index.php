@@ -67,7 +67,7 @@ include 'database.php';
             <a href="logout.php" class="nav-btn btn-login">🚪 Logout</a>
         <?php else: ?>
             <a href="login.php" class="nav-btn btn-login">🔐 Login</a>
-            <a href="register.php" class="nav-btn btn-register">📝 Register as Patient</a>
+            <a href="pRegister.php" class="nav-btn btn-register">📝 Register as Patient</a>
         <?php endif; ?>
     </div>
     

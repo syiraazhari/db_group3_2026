@@ -2,7 +2,6 @@
 session_start();
 include 'database.php';
 
-// Check if user is logged in
 if(!isset($_SESSION['user_id']) || !isset($_SESSION['user_role'])) {
     header("Location: login.php");
     exit();
@@ -12,12 +11,8 @@ $user_id = $_SESSION['user_id'];
 $user_role = $_SESSION['user_role'];
 $user_name = $_SESSION['user_name'];
 
-// =============================================
-// PATIENT DASHBOARD
-// =============================================
 if($user_role == 'patient') {
     
-    // Get patient's appointments - NO QUEUE JOIN (queue table has no link to appointments)
     $appointments_query = "SELECT a.apptId, a.apptDate, a.apptTime, a.status, 
                                   d.doctorName, d.specialisation
                            FROM appointment a
@@ -26,7 +21,6 @@ if($user_role == 'patient') {
                            ORDER BY a.apptDate DESC";
     $appointments_result = mysqli_query($conn, $appointments_query);
     
-    // Get today's queue number - SEPARATE QUERY (queue table has patientId)
     $today = date('Y-m-d');
     $queue_query = "SELECT queueId, availability as queueStatus
                     FROM queue 
@@ -72,7 +66,6 @@ if($user_role == 'patient') {
         <p>Patient ID: <?php echo $user_id; ?></p>
     </div>
     
-    <!-- QUEUE NUMBER RECTANGLE -->
     <div class="rectangle">
         <h3>🚶 Queue Number</h3>
         <?php if($queue && $queue['queueId']): ?>
@@ -85,7 +78,6 @@ if($user_role == 'patient') {
         <?php endif; ?>
     </div>
     
-    <!-- APPOINTMENT DETAILS RECTANGLE -->
     <div class="rectangle">
         <h3>📅 My Appointments</h3>
         <?php if(mysqli_num_rows($appointments_result) > 0): ?>
@@ -122,12 +114,8 @@ if($user_role == 'patient') {
 
 <?php
 }
-// =============================================
-// DOCTOR DASHBOARD
-// =============================================
+
 elseif($user_role == 'doctor') {
-    
-    // Get doctor's appointments with patient info (no queue join)
     $appointments_query = "SELECT a.apptId, a.apptDate, a.apptTime, a.status,
                                   p.patientId, p.patientName, p.gender, p.patientPhoneNo
                            FROM appointment a
@@ -177,7 +165,6 @@ elseif($user_role == 'doctor') {
         <p>Doctor ID: <?php echo $user_id; ?></p>
     </div>
     
-    <!-- DOCTOR PROFILE RECTANGLE -->
     <div class="profile-box">
         <h3>👨‍⚕️ My Profile</h3>
         <?php
@@ -191,13 +178,10 @@ elseif($user_role == 'doctor') {
             <div class="profile-item"><div class="profile-label">Phone</div><div class="profile-value"><?php echo $doctor['doctorPhoneNo']; ?></div></div>
             <div class="profile-item"><div class="profile-label">Email</div><div class="profile-value"><?php echo $doctor['doctorEmail']; ?></div></div>
         </div>
-        
-        <!-- BUTTON LINK TO doctor_appointments.php -->
         <a href="doctor_appointments.php" class="btn">📋 View My Appointments</a>
         <a href="doctor_queue.php" class="btn-appointments">👥 View Patient Queue</a>
     </div>
     
-    <!-- Recent Appointments Summary -->
     <div class="profile-box">
         <h3>📅 Recent Appointments</h3>
         <?php if(mysqli_num_rows($appointments_result) > 0): ?>
@@ -233,9 +217,7 @@ elseif($user_role == 'doctor') {
 
 <?php
 }
-// =============================================
-// RECEPTIONIST DASHBOARD
-// =============================================
+
 elseif($user_role == 'receptionist') {
 ?>
 

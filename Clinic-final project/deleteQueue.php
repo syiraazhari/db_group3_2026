@@ -5,7 +5,7 @@ if (!$con) {
 }
 
 if (isset($_POST['id'])) {
-    $id = intval($_POST['id']); // sanitize input
+    $id = intval($_POST['id']); 
     $sql = "DELETE FROM queue WHERE queueId=$id"; 
     mysqli_query($con, $sql);
 }

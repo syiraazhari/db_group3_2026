@@ -23,7 +23,7 @@ $qry = mysqli_query($con, "SELECT * FROM patient");
 <table>
 <tr>
     <th>ID</th><th>Name</th><th>IC</th><th>Username</th><th>Password</th>
-    <th>Gender</th><th>DOB</th><th>Phone</th><th>Email</th><th>Status</th><th colspan="2">Action</th>
+    <th>Gender</th><th>DOB</th><th>Phone</th><th>Email</th><th>Status</th>
 </tr>
 <?php while ($row = mysqli_fetch_assoc($qry)) {
     echo "<tr>
@@ -37,8 +37,6 @@ $qry = mysqli_query($con, "SELECT * FROM patient");
             <td>{$row['patientPhoneNo']}</td>
             <td>{$row['patientEmail']}</td>
             <td>{$row['patientStatus']}</td>
-            <td><form action='updatePatient.php' method='POST'><input type='hidden' name='id' value='{$row['patientId']}'><input type='submit' value='Edit'></form></td>
-            <td><form action='deletePatient.php' method='POST'><input type='hidden' name='id' value='{$row['patientId']}'><input type='submit' value='Delete'></form></td>
           </tr>";
 } ?>
 </table>

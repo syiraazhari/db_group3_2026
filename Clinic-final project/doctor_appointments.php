@@ -2,7 +2,6 @@
 session_start();
 include 'database.php';
 
-// Check if doctor is logged in
 if(!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 'doctor') {
     header("Location: login.php");
     exit();
@@ -11,7 +10,6 @@ if(!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 'doctor') {
 $doctorId = $_SESSION['user_id'];
 $doctorName = $_SESSION['user_name'];
 
-// Get appointments
 $query = "SELECT a.*, p.patientName, p.patientIc, p.patientPhoneNo, p.patientEmail 
           FROM appointment a 
           JOIN patient p ON a.patientId = p.patientId 

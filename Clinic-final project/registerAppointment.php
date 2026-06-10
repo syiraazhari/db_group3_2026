@@ -2,9 +2,7 @@
 $con = mysqli_connect('localhost','root','','clinic_db');
 if (!$con) { die("Connection failed: " . mysqli_connect_error()); }
 
-// Run only when form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Collect form values safely
     $patientId = isset($_POST['patientId']) ? $_POST['patientId'] : null;
     $doctorId = isset($_POST['doctorId']) ? $_POST['doctorId'] : null;
     $receptionistId = isset($_POST['receptionistId']) ? $_POST['receptionistId'] : null;
@@ -13,12 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $status = isset($_POST['status']) ? $_POST['status'] : null;
 
     if ($patientId && $doctorId && $receptionistId && $apptDate && $apptTime && $status) {
-        // Insert new appointment (apptId auto-increment in DB)
         $sql = "INSERT INTO appointment (patientId, doctorId, receptionistId, apptDate, apptTime, status)
                 VALUES ('$patientId', '$doctorId', '$receptionistId', '$apptDate', '$apptTime', '$status')";
 
         if (mysqli_query($con, $sql)) {
-            header("Location: editAppointments(RECEPTIONIST).php"); // redirect after success
+            header("Location: editAppointments(RECEPTIONIST).php"); 
             exit();
         } else {
             echo "<p style='color:red; text-align:center;'>Error: " . mysqli_error($con) . "</p>";

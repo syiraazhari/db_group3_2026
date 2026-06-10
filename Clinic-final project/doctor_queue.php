@@ -2,7 +2,6 @@
 session_start();
 include 'database.php';
 
-// Check if doctor is logged in
 if(!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 'doctor') {
     header("Location: login.php");
     exit();
@@ -11,7 +10,6 @@ if(!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 'doctor') {
 $doctorId = $_SESSION['user_id'];
 $doctorName = $_SESSION['user_name'];
 
-// Get queue list
 $query = "SELECT q.*, p.patientName, p.patientIc, p.patientPhoneNo
           FROM queue q 
           JOIN patient p ON q.patientId = p.patientId 
@@ -19,7 +17,6 @@ $query = "SELECT q.*, p.patientName, p.patientIc, p.patientPhoneNo
           ORDER BY q.queueId ASC";
 $result = mysqli_query($conn, $query);
 
-// Update queue status
 if(isset($_POST['update_queue_status'])) {
     $queue_id = $_POST['queue_id'];
     $queue_status = $_POST['queue_status'];
@@ -30,7 +27,6 @@ if(isset($_POST['update_queue_status'])) {
     exit();
 }
 
-// Call next patient
 if(isset($_GET['call_next'])) {
     $queue_id = $_GET['call_next'];
     $update_query = "UPDATE queue SET availability = 'In Consultation' WHERE queueId = '$queue_id'";
@@ -39,7 +35,6 @@ if(isset($_GET['call_next'])) {
     exit();
 }
 
-// Get waiting count
 $count_query = "SELECT COUNT(*) as count FROM queue WHERE doctorId = '$doctorId' AND availability = 'Waiting'";
 $count_result = mysqli_query($conn, $count_query);
 $waiting = mysqli_fetch_assoc($count_result);
@@ -203,14 +198,12 @@ $waiting = mysqli_fetch_assoc($count_result);
 
 <div class="container">
     
-    <!-- Current Queue Status -->
     <div class="queue-stats">
         <p>Current Queue Status</p>
         <h2><?php echo $waiting['count']; ?></h2>
         <p>Patients Waiting</p>
     </div>
     
-    <!-- Queue List -->
     <div class="queue-container">
         <h3>Patient Queue List</h3>
         

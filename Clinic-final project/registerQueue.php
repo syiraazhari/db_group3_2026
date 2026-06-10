@@ -2,16 +2,13 @@
 $con = mysqli_connect('localhost','root','','clinic_db');
 if (!$con) { die("Connection failed: " . mysqli_connect_error()); }
 
-// Run only when form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Collect form values safely
     $patientId = isset($_POST['patientId']) ? $_POST['patientId'] : null;
     $doctorId = isset($_POST['doctorId']) ? $_POST['doctorId'] : null;
     $receptionistId = isset($_POST['receptionistId']) ? $_POST['receptionistId'] : null;
     $availability = isset($_POST['availability']) ? $_POST['availability'] : null;
 
     if ($patientId && $doctorId && $receptionistId && $availability) {
-        // Insert new queue entry (queueId auto-increment in DB)
         $sql = "INSERT INTO queue (patientId, doctorId, receptionistId, availability)
                 VALUES ('$patientId', '$doctorId', '$receptionistId', '$availability')";
 

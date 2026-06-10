@@ -10,7 +10,6 @@ if (isset($_POST['id'])) {
     mysqli_query($con, $sql);
 }
 
-// Redirect back to list
 header("Location: editQueue(RECEPTIONIST).php");
 mysqli_close($con);
 ?>

@@ -5,14 +5,12 @@ include 'database.php';
 $error = "";
 $active_form = "login";
 
-// LOGOUT Logic
 if(isset($_GET['action']) && $_GET['action'] == 'logout') {
     session_destroy();
     header("Location: login.php");
     exit();
 }
 
-// Check if already logged in
 if(isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
     if($_SESSION['user_role'] == 'patient') {
         header("Location: dashboard.php");
@@ -24,7 +22,6 @@ if(isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
     exit();
 }
 
-// LOGIN Logic - ONLY ID and PASSWORD
 if(isset($_POST['login'])) {
     $user_id = $_POST['user_id'];
     $password = $_POST['password'];
@@ -109,7 +106,6 @@ if(isset($_POST['login'])) {
 <body>
 
 <div class="container">
-    <!-- LOGIN FORM -->
     <div class="form-box">
         <h2>🔐 Clinic System Login</h2>
         

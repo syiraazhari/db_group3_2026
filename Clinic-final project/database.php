@@ -4,7 +4,7 @@ $user = "root";
 $pass = "";
 $dbname = "clinic_db";
 
-$conn = mysqli_connect($host, $user, $pass, $dbname);  // ← $conn is CREATED HERE
+$conn = mysqli_connect($host, $user, $pass, $dbname);
 
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());

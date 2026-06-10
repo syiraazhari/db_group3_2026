@@ -23,7 +23,7 @@ $qry = mysqli_query($con, "SELECT * FROM patient");
 <table>
 <tr>
     <th>ID</th><th>Name</th><th>IC</th><th>Username</th><th>Password</th>
-    <th>Gender</th><th>DOB</th><th>Phone</th><th>Email</th><th>Status</th>
+    <th>Gender</th><th>DOB</th><th>Phone</th><th>Email</th><th>Status</th>	
 </tr>
 <?php while ($row = mysqli_fetch_assoc($qry)) {
     echo "<tr>
